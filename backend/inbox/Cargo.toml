@@ -1,0 +1,23 @@
+[package]
+name = "open_social_inbox"
+version = "0.1.0"
+edition = "2021"
+description = "OpenSocial inbox shard: devices, MLS key packages and encrypted inbox queues for up to 100,000 accounts."
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+open_social_inbox_core = { path = "../inbox_core" }
+candid = "0.10.39"
+ic-cdk = "0.20.3"
+ic-stable-structures = "0.7.2"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11.19"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

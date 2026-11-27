@@ -1,0 +1,79 @@
+name: Deploy to ICP
+
+# Uploads the frontend to the asset canister ydmpv-niaaa-aaaak-qzlua-cai.
+# Manual only: every deploy spends cycles. Requires the repository secret
+# DFX_IDENTITY_PEM (a deployer identity that is a controller of the canister).
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to upload the current main branch to mainnet'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-icp
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.inputs.confirm == 'DEPLOY' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DFX_VERSION: '0.32.0'
+      DFX_WARNING: '-mainnet_plaintext_identity'
+      CANISTER: open-social-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
+      - name: Install dfx
+        run: |
+          DFXVM_INIT_YES=true sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+          echo "$HOME/.local/share/dfx/bin" >> "$GITHUB_PATH"
+
+      - name: Import deployer identity
+        env:
+          DFX_IDENTITY_PEM: ${{ secrets.DFX_IDENTITY_PEM }}
+        run: |
+          if [ -z "$DFX_IDENTITY_PEM" ]; then
+            echo "::error title=Missing secret::Add the DFX_IDENTITY_PEM repository secret first."
+            exit 1
+          fi
+          umask 077
+          printf '%s\n' "$DFX_IDENTITY_PEM" > "$RUNNER_TEMP/deployer.pem"
+          dfx --version
+          dfx identity import --storage-mode plaintext deployer "$RUNNER_TEMP/deployer.pem"
+          rm -f "$RUNNER_TEMP/deployer.pem"
+          dfx identity use deployer
+          echo "::notice title=Deployer principal::$(dfx identity get-principal)"
+
+      - name: Check canister and cycles
+        run: |
+          dfx canister --network ic status "$CANISTER" 2>&1 | tee status.txt
+          echo "::notice title=Canister status::$(grep -iE 'Status|Balance|Controllers|Module hash' status.txt | tr '\n' ' ')"
+
+      - name: Deploy
+        run: |
+          dfx deploy --network ic "$CANISTER" --yes
+          ID=$(dfx canister --network ic id "$CANISTER")
+          echo "::notice title=Deployed::https://${ID}.icp0.io"
+          {
+            echo "## Deployed to ICP"
+            echo
+            echo "- Canister: \`${ID}\`"
+            echo "- URL: https://${ID}.icp0.io"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Status after deploy
+        if: always()
+        run: |
+          dfx canister --network ic status "$CANISTER" 2>&1 | grep -iE 'Status|Balance|Module hash' | tr '\n' ' ' | sed 's/^/::notice title=After deploy::/' ; echo

@@ -1,0 +1,23 @@
+[package]
+name = "open_social_gateway"
+version = "0.1.0"
+edition = "2021"
+description = "OpenSocial gateway: reads the web for OpenSocial accounts (link previews, the news feed and stories, HashFirst Global data), with caches and per-account limits."
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+candid = "0.10.39"
+ic-cdk = "0.20.3"
+ic-management-canister-types = "0.11.0"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11.19"
+serde_json = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

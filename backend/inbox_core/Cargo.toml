@@ -1,0 +1,18 @@
+[package]
+name = "open_social_inbox_core"
+version = "0.1.0"
+edition = "2021"
+description = "OpenSocial inbox logic shared by the identity canister and the inbox shards: device keys, MLS key packages, per-device queues of encrypted entries, and send tickets."
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+candid = "0.10.39"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11.19"
+ic-stable-structures = "0.7.2"
+hmac = "0.12"
+sha2 = "0.10"

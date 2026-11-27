@@ -1,0 +1,67 @@
+type InitArgs = record { identity : principal };
+type LinkPreview = record {
+  // The page address after redirects.
+  url : text;
+  title : opt text;
+  // The page's preview image, to fetch with `fetch_image`.
+  image_url : opt text;
+  description : opt text;
+  site_name : opt text;
+};
+// A story's full text, as shown on the news site.
+type NewsArticle = record {
+  id : text;
+  // The article body HTML (the app keeps only safe text markup).
+  content_html : text;
+  // The story's cover image, to fetch with `news_cover`.
+  cover_url : opt text;
+};
+type NewsFeed = record {
+  // When the feed was fetched (0: never).
+  fetched_at_ns : nat64;
+  items : vec NewsItem;
+};
+type NewsItem = record {
+  id : text;
+  url : text;
+  protocol : opt text;
+  // A small cover image as a data URL (webp, jpeg or png).
+  thumb : opt text;
+  title : text;
+  source : opt text;
+  published_at_ms : nat64;
+  summary : opt text;
+};
+type PreviewImage = record {
+  content_type : text;
+  // The image as fetched (the app resizes it before sending).
+  bytes : blob;
+};
+type Result = variant { Ok : text; Err : text };
+type Result_1 = variant { Ok : LinkPreview; Err : text };
+type Result_2 = variant { Ok : PreviewImage; Err : text };
+type Result_3 = variant { Ok : NewsArticle; Err : text };
+type Result_4 = variant { Ok : NewsFeed; Err : text };
+service : (InitArgs) -> {
+  // A HashFirst Global API response if the canister has it at hand (no fetch).
+  cached_hashfirst : (text) -> (opt text) query;
+  // A story's full text if the canister has it at hand (no fetch).
+  cached_news_article : (text) -> (opt NewsArticle) query;
+  // A story's cover image if the canister has it at hand (no fetch).
+  cached_news_cover : (text) -> (opt PreviewImage) query;
+  // A HashFirst Global API response (allowed paths only); fetched when not at hand.
+  hashfirst : (text) -> (Result);
+  // Reads a web page's preview (title, description, site name, image address)
+  // for the sender's app, which embeds it in the encrypted message. Nothing is stored.
+  link_preview : (text) -> (Result_1);
+  // Fetches a link preview's image for the sender's app. Nothing is stored.
+  link_preview_image : (text) -> (Result_2);
+  // The latest news stories (as last fetched; empty until someone refreshes).
+  news : () -> (NewsFeed) query;
+  // A story's full text; fetched from the news site when not at hand.
+  news_article : (text) -> (Result_3);
+  // A story's cover image; fetched from the news site when not at hand.
+  news_cover : (text) -> (Result_2);
+  // Fetches the news again if it is older than a few minutes; any signed-in reader may ask.
+  refresh_news : () -> (Result_4);
+}

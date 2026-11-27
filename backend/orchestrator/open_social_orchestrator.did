@@ -1,0 +1,62 @@
+type InitArgs = record { identity : principal; limits : opt Limits };
+type Limits = record {
+  // Cycles a new shard starts with (besides the creation fee).
+  initial_cycles : nat;
+  // Top up a shard below this balance ...
+  topup_below : nat;
+  // The orchestrator keeps this much for itself and stops topping up below it.
+  reserve : nat;
+  // ... by this much.
+  topup_amount : nat;
+  // Accounts per shard.
+  capacity : nat64;
+  // A shard closes to new accounts above this much stable memory.
+  max_stable_memory_bytes : nat64;
+};
+type Overview = record {
+  log : vec text;
+  shards : vec Shard;
+  cycles : nat;
+  accounts : nat64;
+  identity : opt principal;
+  limits : Limits;
+  wasm_hash : text;
+};
+type Result = variant { Ok; Err : text };
+type Result_1 = variant { Ok : principal; Err : text };
+type Result_2 = variant { Ok : text; Err : text };
+type Result_3 = variant { Ok : vec principal; Err : text };
+type Shard = record {
+  id : principal;
+  checked_at_ns : nat64;
+  stable_memory_bytes : nat64;
+  open : bool;
+  cycles : nat;
+  accounts : nat64;
+  queued_entries : nat64;
+  number : nat32;
+  // sha256 of the wasm it runs (as installed by this orchestrator).
+  wasm_hash : text;
+};
+service : (InitArgs) -> {
+  // Controllers: adds a shard created elsewhere (this canister must control it).
+  add_shard : (principal, nat32) -> (Result);
+  // Identity canister: makes a shard the home of a new account; returns the shard.
+  assign : (principal) -> (Result_1);
+  // Controllers: creates a new shard now.
+  create_shard : () -> (Result_1);
+  // Controllers: moves an account to another shard (copy, switch its home in
+  // the identity canister, then drop the old copy). `from` may be the identity
+  // canister ("shard 000").
+  move_account : (principal, principal, principal) -> (Result);
+  overview : () -> (Overview) query;
+  // Controllers: runs the hourly refresh now.
+  refresh : () -> (Result);
+  // Controllers: stores the inbox wasm used for new shards and upgrades.
+  set_inbox_wasm : (blob) -> (Result_2);
+  set_limits : (Limits) -> (Result);
+  set_shard_controllers : (vec principal) -> (Result);
+  // Controllers: upgrades at most `max` shards not yet on the stored wasm,
+  // lowest number first. Upgrade 1, watch, then more (waves).
+  upgrade_shards : (nat32) -> (Result_3);
+}

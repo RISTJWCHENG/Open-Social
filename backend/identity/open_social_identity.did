@@ -1,0 +1,288 @@
+// One account's data, as moved between canisters.
+type AccountExport = record {
+  mail : vec record { text; MailItem };
+  last_resort : vec record { text; blob };
+  single_use : vec record { text; blob };
+  devices : vec Device;
+};
+// Where the frontend runs. WebAuthn needs the relying party id (a domain).
+type AllowedOrigin = record {
+  // e.g. "https://ydmpv-niaaa-aaaak-qzlua-cai.icp0.io"
+  origin : text;
+  // e.g. "ydmpv-niaaa-aaaak-qzlua-cai.icp0.io"
+  rp_id : text;
+};
+// Stored entry ids, and the indexes of entries skipped because their device's mailbox is full.
+type BatchResult = record { ids : vec nat64; skipped : vec nat32 };
+type ClaimedKeyPackage = record { last_resort : blob; single_use : opt blob };
+type CommitArgs = record {
+  // Accounts to give access (admins only).
+  add : vec principal;
+  // Accounts to take access from (admins remove members; the owner anyone).
+  remove : vec principal;
+  welcome : opt nat64;
+  device : text;
+  epoch : nat64;
+  group : text;
+  commit : blob;
+};
+type Config = record { origins : vec AllowedOrigin };
+type DepositItem = record {
+  to : principal;
+  device_id : text;
+  entry : blob;
+  // Direct-link offer: capped per sender and dropped after 10 minutes.
+  ephemeral : bool;
+};
+type Device = record {
+  added_at_ns : nat64;
+  device_id : text;
+  label : text;
+  encryption_key : blob;
+  signing_key : blob;
+};
+type DeviceInput = record {
+  device_id : text;
+  label : text;
+  encryption_key : blob;
+  signing_key : blob;
+};
+type EmailChallenge = record {
+  sent_to : text;
+  challenge_id : text;
+  expires_at_ns : nat64;
+};
+type EmailSenderInput = record {
+  api_key : text;
+  from : text;
+  daily_limit : opt nat32;
+};
+type EmailStatus = record {
+  sent_today : nat32;
+  from : opt text;
+  configured : bool;
+  daily_limit : nat32;
+};
+type Entry = record {
+  seq : nat64;
+  at_ns : nat64;
+  // A commit that adds members: the blob holding its Welcome.
+  welcome : opt nat64;
+  data : blob;
+  from : principal;
+  kind : EntryKind;
+  // The sending device (as the sender says; the MLS signature is what counts).
+  device : text;
+  // The epoch the entry was made in.
+  epoch : nat64;
+};
+type EntryKind = variant {
+  // An MLS application message.
+  Message;
+  // An MLS commit (moves the group to the next epoch).
+  Commit;
+};
+type Head = record {
+  // The asker's role (they are a member, or the group isn't listed).
+  role : Role;
+  epoch : nat64;
+  group : text;
+  // Seq of the latest entry (0: none yet).
+  last_seq : nat64;
+};
+type InitArgs = record { config : Config };
+// A way to sign in to an account: the method it was created with, or a
+// recovery email added at sign-up.
+type Link = record {
+  // Stable identifier within the kind (principal, credential id, email hash).
+  id : text;
+  // "ii", "passkey" or "email"
+  kind : text;
+  added_at_ns : nat64;
+  // Short, non-secret label for display.
+  label : text;
+};
+type Mail = record {
+  id : nat64;
+  from : principal;
+  entry : blob;
+  received_at_ns : nat64;
+};
+type MailItem = record {
+  id : nat64;
+  from : principal;
+  entry : blob;
+  received_at_ns : nat64;
+  ephemeral : bool;
+};
+type PasskeyAssertion = record {
+  signature : blob;
+  origin : text;
+  challenge_id : text;
+  authenticator_data : blob;
+  client_data_json : blob;
+  credential_id : blob;
+};
+type PasskeyChallenge = record {
+  challenge : blob;
+  challenge_id : text;
+  rp_id : text;
+};
+type PasskeyRegistration = record {
+  attestation_object : blob;
+  origin : text;
+  challenge_id : text;
+  client_data_json : blob;
+  credential_id : blob;
+};
+type PostError = variant {
+  Invalid : text;
+  NotMember;
+  NotAllowed : text;
+  NotFound;
+  // A commit made in an older epoch: catch up to `current` and make it again.
+  StaleEpoch : nat64;
+};
+type Prepared = record {
+  // DER-encoded canister signature public key of the account.
+  user_key : blob;
+  new_account : bool;
+  expiration_ns : nat64;
+  account_principal : principal;
+};
+type Result = variant { Ok : nat32; Err : text };
+type Result_1 = variant { Ok; Err : text };
+type Result_10 = variant { Ok : SignedDelegation; Err : text };
+type Result_11 = variant { Ok : blob; Err : PostError };
+type Result_12 = variant { Ok; Err : PostError };
+type Result_13 = variant { Ok : nat64; Err : PostError };
+type Result_14 = variant { Ok : vec Entry; Err : PostError };
+type Result_15 = variant { Ok : Link; Err : text };
+type Result_16 = variant { Ok : vec Link; Err : text };
+type Result_17 = variant { Ok : PasskeyChallenge; Err : text };
+type Result_18 = variant { Ok : Ticket; Err : text };
+type Result_19 = variant { Ok : vec TicketKey; Err : text };
+type Result_2 = variant { Ok : opt ClaimedKeyPackage; Err : text };
+type Result_3 = variant { Ok : vec opt ClaimedKeyPackage; Err : text };
+type Result_4 = variant { Ok : nat64; Err : text };
+type Result_5 = variant { Ok : BatchResult; Err : text };
+type Result_6 = variant { Ok : EmailChallenge; Err : text };
+type Result_7 = variant { Ok : Prepared; Err : text };
+type Result_8 = variant { Ok : AccountExport; Err : text };
+type Result_9 = variant { Ok : vec Mail; Err : text };
+type Role = variant { Member; Admin; Owner };
+type SessionRequest = record {
+  // DER-encoded public key of the frontend session key pair.
+  session_key : blob;
+  max_time_to_live_ns : opt nat64;
+};
+// How accounts are spread over inbox shards.
+type Sharding = record {
+  // The orchestrator that assigns new accounts to inbox shards. None: new
+  // accounts live here, in this canister's own inbox ("shard 000").
+  orchestrator : opt principal;
+};
+type SignedDelegation = record {
+  signature : blob;
+  expiration_ns : nat64;
+  pubkey : blob;
+};
+type Ticket = record {
+  mac : blob;
+  "principal" : principal;
+  epoch : nat32;
+  expires_at_ns : nat64;
+};
+// A ticket key. The identity canister signs with the newest; shards accept
+// the newest two, so tickets stay valid across a key rotation.
+type TicketKey = record { key : blob; epoch : nat32 };
+service : (InitArgs) -> {
+  // Deletes entries up to and including `up_to` once they are stored on the device.
+  ack_mail : (text, nat64) -> (Result);
+  // Grants an account principal the right to configure email. Controllers only.
+  add_admin : (principal) -> (Result_1);
+  am_i_admin : () -> (bool) query;
+  // Orchestrator: ends a failed move.
+  cancel_move : (principal) -> (Result_1);
+  // Hands out a device's last-resort key package and one single-use key
+  // package (used once). Signed-in callers only, rate limited like deposits.
+  claim_key_package : (principal, text, opt Ticket) -> (Result_2);
+  // Key packages of many devices in one call (adding people to a group chat).
+  // At most 200 devices; each must live in this shard.
+  claim_key_packages : (vec record { principal; text }, opt Ticket) -> (
+      Result_3,
+    );
+  // Deletes the caller's account: sign-in method, passkey, devices, key
+  // packages and queued mail. The account principal stops working.
+  delete_account : () -> (Result_1);
+  // Queues an end-to-end encrypted log entry for an offline device.
+  deposit : (principal, text, blob, opt Ticket) -> (Result_4);
+  // Queues several encrypted entries in one call (all or nothing, in order).
+  deposit_batch : (vec DepositItem, opt Ticket) -> (Result_5);
+  // Orchestrator: removes an account's inbox data here after it moved (the
+  // account itself, its sign-in methods and principal stay).
+  drop_account : (principal) -> (Result_1);
+  // Sends a sign-in code to `email`. Rate limited per address and per day.
+  email_challenge : (text, text) -> (Result_6);
+  email_sender_status : () -> (EmailStatus) query;
+  email_sign_in : (text, text, SessionRequest) -> (Result_7);
+  // Orchestrator: an account's inbox data, to move it to an inbox shard. From
+  // now until `drop_account` or `cancel_move`, new entries for it are refused.
+  export_account : (principal) -> (Result_8);
+  // Entries waiting for one of the caller's devices, oldest first, after `after`.
+  fetch_mail : (text, nat64) -> (Result_9) query;
+  // Returns the canister signature for a prepared delegation. Must be a query
+  // (certified via the data certificate).
+  get_delegation : (principal, blob, nat64) -> (Result_10) query;
+  // Public device keys of any OpenSocial account (empty if unknown).
+  get_devices : (principal) -> (vec Device) query;
+  group_blob_get : (text, nat64, nat32) -> (Result_11) query;
+  // One chunk of an encrypted file or Welcome, stored once for the whole group.
+  group_blob_put : (text, nat64, nat32, nat32, nat64, blob) -> (Result_12);
+  // Starts a group chat's stream here, with the caller as its owner.
+  group_create : (text, opt Ticket) -> (Result_12);
+  // Latest seq and epoch of each listed group the caller is in.
+  group_heads : (vec text) -> (vec Head) query;
+  group_leave : (text, opt principal) -> (Result_12);
+  // An MLS application message for the group → its seq.
+  group_post : (text, text, nat64, blob) -> (Result_13);
+  // An MLS commit made in the current epoch, with the access-list change it brings → its seq.
+  group_post_commit : (CommitArgs) -> (Result_13);
+  // Entries after `after`, oldest first (members only).
+  group_read : (text, nat64) -> (Result_14) query;
+  group_set_role : (text, principal, Role) -> (Result_12);
+  // Where an account's inbox lives: an inbox shard, or this canister ("shard
+  // 000") when it has none. None for principals that are not OpenSocial accounts.
+  home_of : (principal) -> (opt principal) query;
+  // Adds a verified email to the caller's new account, so signing in with that
+  // email later opens the same account (account recovery).
+  link_email : (text, text) -> (Result_15);
+  // Sign-in methods of the caller's account.
+  my_sign_in_methods : () -> (Result_16) query;
+  passkey_challenge : (text) -> (Result_17);
+  // Creates a new account with a new passkey.
+  passkey_register : (PasskeyRegistration, SessionRequest) -> (Result_7);
+  passkey_sign_in : (PasskeyAssertion, SessionRequest) -> (Result_7);
+  // Publishes this device's last-resort key package (replacing the set when
+  // given) and adds single-use key packages. Returns how many single-use ones
+  // are left.
+  publish_key_packages : (text, opt blob, vec blob) -> (Result);
+  // Publishes this device's public keys under the caller's account.
+  register_device : (DeviceInput) -> (Result_1);
+  remove_device : (text) -> (Result_1);
+  // Controllers: starts a new ticket key; the previous one stays valid until the next rotation.
+  rotate_ticket_key : () -> (Result);
+  // A send ticket for the caller's account, for depositing into inbox shards.
+  send_ticket : () -> (Result_18);
+  // Configures (or removes, with None) the email service. Controllers and admins only.
+  set_email_sender : (opt EmailSenderInput) -> (Result_1);
+  // Orchestrator: records an account's new home after moving it.
+  set_home : (principal, principal) -> (Result_1);
+  // Controllers: sets the orchestrator (None keeps new accounts here).
+  set_sharding : (Sharding) -> (Result_1);
+  sharding : () -> (Sharding) query;
+  // The caller authenticates with their Internet Identity delegation.
+  sign_in_with_ii : (SessionRequest) -> (Result_7);
+  // Orchestrator: the ticket keys inbox shards accept (created if missing).
+  ticket_keys : () -> (Result_19);
+}

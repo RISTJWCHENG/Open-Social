@@ -1,0 +1,63 @@
+name: Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+permissions:
+  contents: read
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend/identity
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+          rustup default stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            backend/identity/target
+          key: identity-${{ hashFiles('backend/identity/Cargo.lock') }}
+      - run: cargo test --locked
+      - run: ./build.sh
+      - name: Candid file is up to date
+        run: git diff --exit-code open_social_identity.did
+
+  profiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend/profiles
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+          rustup default stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            backend/profiles/target
+          key: profiles-${{ hashFiles('backend/profiles/Cargo.lock') }}
+      - run: cargo test --locked
+      - name: Candid file is up to date
+        run: git diff --exit-code open_social_profiles.did
+      - run: cargo build --release --target wasm32-unknown-unknown --locked

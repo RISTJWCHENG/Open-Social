@@ -1,0 +1,61 @@
+type Doc = record {
+  // Unique within its kind (a principal, a listing id, ...).
+  id : text;
+  title : text;
+  owner : principal;
+  // "profile", "listing", "space", ...
+  kind : text;
+  tags : vec text;
+  "text" : text;
+  updated_at_ns : nat64;
+};
+type DocRef = record { id : text; kind : text };
+type Hit = record {
+  id : text;
+  title : text;
+  owner : principal;
+  kind : text;
+  updated_at_ns : nat64;
+  snippet : text;
+  score : float32;
+};
+type InitArgs = record { sources : vec principal };
+type ReindexResult = record { done : bool; next : opt text; indexed : nat64 };
+type Result = variant { Ok; Err : text };
+type Result_1 = variant { Ok : ReindexResult; Err : text };
+type SearchPage = record {
+  total : nat64;
+  hits : vec Hit;
+  next_offset : opt nat32;
+};
+type SearchQuery = record {
+  "text" : text;
+  offset : nat32;
+  limit : nat32;
+  // Kinds to search; empty: all.
+  kinds : vec text;
+};
+type Stats = record {
+  terms : nat64;
+  documents : nat64;
+  postings : nat64;
+  by_kind : vec record { text; nat64 };
+  cycles : nat;
+  sources : vec principal;
+};
+service : (InitArgs) -> {
+  // Sources: adds or replaces documents and removes others, in one call.
+  index : (vec Doc, vec DocRef) -> (Result);
+  // The time, for documents a controller adds by hand.
+  now : () -> (nat64) query;
+  // Controllers: rebuilds one kind from its source canister, a few pages per
+  // call (`search_docs` there). Repeat with `next` until done. With no cursor,
+  // the kind's current documents are dropped first.
+  reindex : (principal, text, opt text, nat32) -> (Result_1);
+  // Ranked matches for a query.
+  search : (SearchQuery) -> (SearchPage) query;
+  // Ids of matching documents of one kind, best first (for a source to apply its own filters).
+  search_ids : (text, text, nat32) -> (vec text) query;
+  set_sources : (vec principal) -> (Result);
+  stats : () -> (Stats) query;
+}

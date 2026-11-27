@@ -1,0 +1,49 @@
+name: MLS WebAssembly
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wasm/mls/**'
+      - 'src/vendor/open-social-mls/**'
+      - 'scripts/mls/**'
+      - '.github/workflows/mls-wasm.yml'
+  pull_request:
+    paths:
+      - 'wasm/mls/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+          rustup default stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            wasm/mls/target
+          key: mls-wasm-${{ hashFiles('wasm/mls/Cargo.lock') }}
+      - name: wasm-bindgen-cli
+        run: command -v wasm-bindgen || cargo install wasm-bindgen-cli --version 0.2.104 --locked
+      - name: Build OpenMLS to WebAssembly
+        working-directory: wasm/mls
+        run: |
+          cargo build --release --target wasm32-unknown-unknown --locked
+          wasm-bindgen --target web --out-dir /tmp/mls-pkg target/wasm32-unknown-unknown/release/open_social_mls.wasm
+      - name: Smoke test (fresh build)
+        run: MLS_PKG=/tmp/mls-pkg node scripts/mls/smoke.mjs
+      - name: Smoke test (vendored build)
+        run: node scripts/mls/smoke.mjs
