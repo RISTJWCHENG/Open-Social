@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EmojiPicker } from '../../src/ui/emoji/EmojiPicker';
 import data from '../../src/ui/emoji/emojiData.json';
@@ -11,6 +11,12 @@ const setup = (recent: string[] = []) => {
   render(<EmojiPicker recent={recent} onPick={onPick} onClose={onClose} />);
   return { onPick, onClose };
 };
+
+/** Sets the search box in one change. Typing it key by key under coverage
+ * interleaves with the picker's re-render and scrambles the query. */
+function setSearch(text: string) {
+  fireEvent.change(screen.getByRole('searchbox', { name: 'Search emoji' }), { target: { value: text } });
+}
 
 describe('Emoji data', () => {
   it('covers every category in Unicode order, with names and keywords', () => {
@@ -33,7 +39,7 @@ describe('Emoji data', () => {
   });
 });
 
-describe('Emoji picker', () => {
+describe.sequential('Emoji picker', () => {
   it('shows category tabs, every category section and the bottom tabs', async () => {
     setup();
     const dialog = screen.getByRole('dialog', { name: 'Emoji, GIFs and stickers' });
@@ -60,12 +66,11 @@ describe('Emoji picker', () => {
     expect(within(screen.getByRole('region', { name: 'Recent' })).getByRole('button')).toHaveTextContent('🎉');
     await userEvent.click(screen.getByRole('button', { name: 'grinning face' }));
     expect(onPick).toHaveBeenCalledWith('😀');
-    await userEvent.type(screen.getByRole('searchbox', { name: 'Search emoji' }), 'red heart');
-    const results = screen.getByRole('region', { name: 'Search results' });
+    setSearch('red heart');
+    const results = await screen.findByRole('region', { name: 'Search results' });
     expect(within(results).getByRole('button', { name: 'red heart' })).toHaveTextContent('❤️');
-    await userEvent.clear(screen.getByRole('searchbox', { name: 'Search emoji' }));
-    await userEvent.type(screen.getByRole('searchbox', { name: 'Search emoji' }), 'zzzqqq');
-    expect(screen.getByText('No emoji found')).toBeInTheDocument();
+    setSearch('zzzqqq');
+    expect(await screen.findByText('No emoji found')).toBeInTheDocument();
   });
 
   it('shows flags with their country code and finds them by code', async () => {
@@ -73,8 +78,8 @@ describe('Emoji picker', () => {
     const flags = await screen.findByRole('region', { name: 'Flags' });
     const be = within(flags).getByRole('button', { name: 'Flag: Belgium' });
     expect(be).toHaveTextContent('🇧🇪BE');
-    await userEvent.type(screen.getByRole('searchbox', { name: 'Search emoji' }), 'cn');
-    expect(within(screen.getByRole('region', { name: 'Search results' })).getByRole('button', { name: 'Flag: China' })).toBeInTheDocument();
+    setSearch('cn');
+    expect(within(await screen.findByRole('region', { name: 'Search results' })).getByRole('button', { name: 'Flag: China' })).toBeInTheDocument();
   });
 
   it('GIF and sticker tabs say they are coming; Escape closes the panel', async () => {
