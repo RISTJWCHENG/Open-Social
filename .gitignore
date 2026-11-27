@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.dfx/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+artifacts/
+*.tsbuildinfo
+!.env.production
+
+# Rust build output
+**/target/
+__pycache__/

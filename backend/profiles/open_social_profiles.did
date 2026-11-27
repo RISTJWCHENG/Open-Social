@@ -1,0 +1,93 @@
+type AvatarChange = variant { Set : blob; Keep; Remove };
+type AvatarMeta = record {
+  // Hex SHA-256 of the image bytes (lets clients cache by content).
+  hash : text;
+  mime : text;
+  size : nat32;
+  updated_at_ns : nat64;
+};
+type Doc = record {
+  id : text;
+  title : text;
+  owner : principal;
+  kind : text;
+  tags : vec text;
+  "text" : text;
+  updated_at_ns : nat64;
+};
+// A page of documents for the search canister's `reindex`.
+type DocPage = record { docs : vec Doc; next : opt text };
+type InitArgs = record { identity_canister : principal };
+type MyData = record { stored_bytes : nat64; "record" : opt ProfileRecord };
+// A labelled link on a public profile (https only).
+type ProfileLink = record { url : text; label : text };
+// One account's profile. Large values (images, sealed blob) live in their own maps.
+type ProfileRecord = record {
+  bio : opt text;
+  username : opt text;
+  updated_at_ns : nat64;
+  sealed : opt SealedMeta;
+  // Public links (public layer only).
+  links : vec ProfileLink;
+  display_name : opt text;
+  created_at_ns : nat64;
+  visibility : Visibility;
+  avatar : opt AvatarMeta;
+};
+type PublicProfileInput = record {
+  bio : text;
+  username : text;
+  links : vec ProfileLink;
+  display_name : text;
+  avatar : AvatarChange;
+};
+type PublicProfileView = record {
+  bio : text;
+  username : text;
+  updated_at_ns : nat64;
+  links : vec ProfileLink;
+  display_name : text;
+  account : principal;
+  avatar : opt AvatarMeta;
+};
+type Result = variant { Ok; Err : text };
+type Result_1 = variant { Ok : vec record { principal; nat32 }; Err : text };
+type Result_2 = variant { Ok : DocPage; Err : text };
+type Result_3 = variant { Ok : vec PublicProfileView; Err : text };
+type SealedMeta = record { hash : text; size : nat32; updated_at_ns : nat64 };
+type SealedView = record { "blob" : blob; meta : SealedMeta };
+type Stats = record {
+  sealed_profiles : nat64;
+  public_avatars : nat64;
+  usernames : nat64;
+  profiles : nat64;
+};
+type Visibility = variant { Public; Friends };
+service : (InitArgs) -> {
+  add_admin : (principal) -> (Result);
+  // Back to friends only: removes the public layer (fields, avatar, username, search entries).
+  clear_public_profile : () -> (Result);
+  // Deletes everything this canister holds about the caller.
+  delete_my_data : () -> (Result);
+  // Public avatar bytes (fetch separately so lists stay light; cache by `AvatarMeta.hash`).
+  get_public_avatar : (principal) -> (opt blob) query;
+  get_public_profile : (principal) -> (opt PublicProfileView) query;
+  // A friends-only profile, still encrypted; only friends hold the key.
+  get_sealed_profile : (principal) -> (opt SealedView) query;
+  my_data : () -> (MyData) query;
+  // Removes an account's public layer (moderation). The sealed layer is untouched.
+  remove_public_profile : (principal) -> (Result);
+  report_profile : (principal, text) -> (Result);
+  reported_profiles : () -> (Result_1) query;
+  // Public profiles for the search canister's `reindex`, by principal, after `cursor`.
+  search_docs : (text, opt text) -> (Result_2) query;
+  // Prefix search over usernames and display-name words of public profiles.
+  search_profiles : (text) -> (Result_3) query;
+  // Publishes or updates the caller's public profile (searchable, readable by anyone).
+  set_public_profile : (PublicProfileInput) -> (Result);
+  // Stores the caller's friends-only profile: a blob encrypted on the device.
+  set_sealed_profile : (opt blob) -> (Result);
+  // Controllers: sets the search canister that is told about public profiles.
+  set_search_canister : (opt principal) -> (Result);
+  stats : () -> (Stats) query;
+}

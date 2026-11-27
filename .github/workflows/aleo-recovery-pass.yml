@@ -1,0 +1,45 @@
+name: Aleo recovery pass
+
+# Compiles the Leo program and runs a real zero-knowledge prove/verify cycle
+# offline (no Aleo ledger access, no credits, no deployment).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'contracts/aleo/**'
+      - 'scripts/aleo/**'
+      - '.github/workflows/aleo-recovery-pass.yml'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      LEO_VERSION: '4.4.4'
+      LEO_SHA256: 'ca0d9d14ceed80f3e35a6e6b32bf17711d3bc98a7110b810df409ea9fbdf4432'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Leo
+        run: |
+          curl -sSfL -o leo.zip "https://github.com/ProvableHQ/leo/releases/download/leo-lang-v${LEO_VERSION}/leo-lang-v${LEO_VERSION}-x86_64-unknown-linux-gnu.zip"
+          echo "${LEO_SHA256}  leo.zip" | sha256sum -c -
+          unzip -q leo.zip -d "$HOME/leo-bin"
+          echo "$HOME/leo-bin" >> "$GITHUB_PATH"
+      - name: Compile and compare with committed artifact
+        working-directory: contracts/aleo/open_social_recovery_pass
+        run: |
+          leo --version
+          NO_COLOR=1 leo build
+          diff -u compiled/open_social_recovery_pass.aleo build/open_social_recovery_pass/open_social_recovery_pass.aleo
+      - name: Prove and verify
+        run: npm run aleo:check

@@ -1,0 +1,236 @@
+type Doc = record {
+  id : text;
+  title : text;
+  owner : principal;
+  kind : text;
+  tags : vec text;
+  "text" : text;
+  updated_at_ns : nat64;
+};
+// A page of documents for the search canister's `reindex`.
+type DocPage = record { docs : vec Doc; next : opt text };
+type ImageMeta = record { hash : text; mime : text; size : nat32 };
+type InitArgs = record { identity_canister : principal };
+type ItemInput = record {
+  url : text;
+  // A finished upload (from space_upload_begin / space_upload_chunk), or keep: the current one.
+  media : opt nat64;
+  title : text;
+  body : text;
+  kind : ItemKind;
+  tags : vec text;
+  canister_id : text;
+  images : vec PhotoInput;
+};
+type ItemKind = variant { Dapp; Link; Post; Work; Music; Video };
+type ItemPage = record {
+  total : nat64;
+  items : vec SpaceItem;
+  next_offset : opt nat64;
+};
+type Listing = record {
+  id : nat64;
+  status : ListingStatus;
+  title : text;
+  shipping : bool;
+  description : text;
+  updated_at_ns : nat64;
+  seller : principal;
+  created_at_ns : nat64;
+  pickup : bool;
+  currency : text;
+  category : text;
+  // Minor units of `currency` (cents; satoshi-like 1e-8 for crypto). 0 = free.
+  price : nat64;
+  seller_name : text;
+  location : text;
+  photos : vec PhotoMeta;
+  negotiable : bool;
+  condition : text;
+};
+type ListingInput = record {
+  title : text;
+  shipping : bool;
+  description : text;
+  pickup : bool;
+  currency : text;
+  category : text;
+  price : nat64;
+  seller_name : text;
+  location : text;
+  photos : vec PhotoInput;
+  negotiable : bool;
+  condition : text;
+};
+type ListingStatus = variant {
+  Reserved;
+  Sold;
+  Active;
+  // Hidden by reports or an administrator; only the seller still sees it.
+  Hidden;
+};
+type MarketPage = record {
+  total : nat64;
+  items : vec Listing;
+  next_offset : opt nat64;
+};
+type MarketQuery = record {
+  // Only these listings, in this order (the search canister's matches for
+  // the words; `text` is then left empty). With Newest, the order is kept.
+  ids : opt vec nat64;
+  free_only : bool;
+  sort : MarketSort;
+  "text" : text;
+  offset : nat64;
+  seller : opt principal;
+  limit : nat32;
+  // With min/max price: only listings in this currency.
+  currency : opt text;
+  category : opt text;
+  max_price : opt nat64;
+  shipping_only : bool;
+  location : text;
+  min_price : opt nat64;
+  condition : opt text;
+};
+type MarketSort = variant { PriceHigh; PriceLow; Newest };
+type MediaMeta = record {
+  id : nat64;
+  owner : principal;
+  item : opt nat64;
+  mime : text;
+  size : nat64;
+  created_at_ns : nat64;
+  chunks : nat32;
+  received : nat32;
+};
+// Entries after `start`, up to about `max_bytes` (always at least one), and whether the map is done.
+type Page = record { done : bool; entries : vec record { blob; blob } };
+type PhotoInput = variant {
+  Add : blob;
+  // Keep a photo already on this listing (by hash), in this position.
+  Keep : text;
+};
+type PhotoMeta = record { hash : text; mime : text; size : nat32 };
+type PullResult = record {
+  done : bool;
+  // Where to continue (the last key copied), unless done.
+  next : opt blob;
+  copied : nat64;
+};
+type Result = variant { Ok; Err : text };
+type Result_1 = variant { Ok : nat64; Err : text };
+type Result_2 = variant { Ok : vec record { nat64; nat32 }; Err : text };
+type Result_3 = variant { Ok : vec nat64; Err : text };
+type Result_4 = variant { Ok : Page; Err : text };
+type Result_5 = variant { Ok : PullResult; Err : text };
+type Result_6 = variant { Ok : DocPage; Err : text };
+type Result_7 = variant { Ok : nat32; Err : text };
+type SpaceInput = record {
+  accent : text;
+  about : text;
+  show_market : bool;
+  pinned : opt nat64;
+  visible : bool;
+};
+type SpaceItem = record {
+  id : nat64;
+  url : text;
+  media : opt MediaMeta;
+  title : text;
+  owner : principal;
+  body : text;
+  kind : ItemKind;
+  hidden : bool;
+  tags : vec text;
+  canister_id : text;
+  updated_at_ns : nat64;
+  likes : nat32;
+  created_at_ns : nat64;
+  images : vec ImageMeta;
+};
+type SpaceView = record {
+  accent : text;
+  about : text;
+  // Only for the owner: bytes stored and the quota.
+  used_bytes : opt nat64;
+  show_market : bool;
+  owner : principal;
+  likes : nat64;
+  pinned : opt nat64;
+  quota_bytes : nat64;
+  visible : bool;
+  items : nat64;
+};
+service : (InitArgs) -> {
+  // Controllers: adds a moderator (reviews reported listings and items).
+  add_admin : (principal) -> (Result);
+  // Deletes everything the caller published here: listings with their photos,
+  // and their space with its items and files (when they delete their account).
+  delete_my_data : () -> (Result);
+  // Number of public listings per category.
+  market_counts : () -> (vec record { text; nat64 }) query;
+  market_create : (ListingInput) -> (Result_1);
+  market_delete : (nat64) -> (Result);
+  // One listing. Hidden listings are only shown to their seller and administrators.
+  market_listing : (nat64) -> (opt Listing) query;
+  // Several listings by id (e.g. a buyer's saved list); hidden ones are left out.
+  market_listings : (vec nat64) -> (vec Listing) query;
+  // Administrators: hide or restore a listing (restoring clears its reports).
+  market_moderate : (nat64, bool) -> (Result);
+  // The caller's own listings (all statuses), newest first.
+  market_my_listings : () -> (vec Listing) query;
+  market_photo : (nat64, text) -> (opt blob) query;
+  market_report : (nat64, text) -> (Result);
+  // Administrators: reported listings with their report counts.
+  market_reported : () -> (Result_2) query;
+  market_search : (MarketQuery) -> (MarketPage) query;
+  // Seller marks a listing Active, Reserved or Sold.
+  market_set_status : (nat64, ListingStatus) -> (Result);
+  market_update : (nat64, ListingInput) -> (Result);
+  move_cells : (text) -> (Result_3) query;
+  // Entries per map of a module (to check a copy).
+  move_counts : (text) -> (Result_3) query;
+  // One page of a module's map, for another canister taking the module over.
+  move_dump : (text, nat8, opt blob) -> (Result_4) query;
+  // Controllers: copies up to `pages` pages of one map of a module ("market"
+  // or "space") from another canister running the same module. Repeat with
+  // `next` until done; copying again is safe (entries are overwritten).
+  move_pull : (principal, text, nat8, opt blob, nat32) -> (Result_5);
+  // Controllers: copies a module's counters from another canister.
+  move_pull_cells : (principal, text) -> (Result_3);
+  // Public listings ("listing") or space items ("space") for the search
+  // canister's `reindex`, 200 at a time, by id after `cursor`.
+  search_docs : (text, opt text) -> (Result_6) query;
+  // Controllers: sets the search canister that is told about public content.
+  set_search_canister : (opt principal) -> (Result);
+  space_create : (ItemInput) -> (Result_1);
+  space_delete : (nat64) -> (Result);
+  // Latest items from the given spaces (a reader's follows, sent from their device).
+  space_feed : (vec principal, nat64, nat32) -> (ItemPage) query;
+  space_get : (principal) -> (opt SpaceView) query;
+  space_image : (nat64, text) -> (opt blob) query;
+  space_item : (nat64) -> (opt SpaceItem) query;
+  // One space's items, newest first (hidden items only for the owner).
+  space_items : (principal, opt ItemKind, nat64, nat32) -> (ItemPage) query;
+  // Several items by id, in the given order (e.g. search matches); ones the caller may not see are left out.
+  space_items_by_ids : (vec nat64) -> (vec SpaceItem) query;
+  // Likes or unlikes an item; returns its like count.
+  space_like : (nat64, bool) -> (Result_7);
+  // Which of these items the caller has liked.
+  space_liked : (vec nat64) -> (vec nat64) query;
+  space_media_chunk : (nat64, nat32) -> (opt blob) query;
+  // Administrators: hide or restore an item (restoring clears its reports).
+  space_moderate : (nat64, bool) -> (Result);
+  // Latest items across all visible spaces.
+  space_recent : (opt ItemKind, nat64, nat32) -> (ItemPage) query;
+  space_report : (nat64, text) -> (Result);
+  space_set : (SpaceInput) -> (Result);
+  // Storage used by all spaces, and the limit.
+  space_storage : () -> (nat64, nat64) query;
+  space_update : (nat64, ItemInput) -> (Result);
+  space_upload_begin : (text, nat64) -> (Result_1);
+  // Cancels an unfinished upload and frees its space.
+  space_upload_cancel : (nat64) -> (Result);
+  space_upload_chunk : (nat64, nat32, blob) -> (Result);
+}

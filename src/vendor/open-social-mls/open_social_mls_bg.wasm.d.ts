@@ -1,0 +1,35 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const __wbg_mlsdevice_free: (a: number, b: number) => void;
+export const mlsVersion: (a: number) => void;
+export const mlsdevice_acceptWelcome: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const mlsdevice_create: (a: number, b: number, c: number) => void;
+export const mlsdevice_decrypt: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const mlsdevice_encrypt: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const mlsdevice_exportState: (a: number, b: number) => void;
+export const mlsdevice_groupAdd: (a: number, b: number, c: number, d: number, e: number) => void;
+export const mlsdevice_groupCreate: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_groupDelete: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_groupDiscard: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_groupEncrypt: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const mlsdevice_groupEpoch: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_groupHas: (a: number, b: number, c: number) => number;
+export const mlsdevice_groupHasPending: (a: number, b: number, c: number) => number;
+export const mlsdevice_groupJoin: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_groupMembers: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_groupMerge: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_groupProcess: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const mlsdevice_groupRemove: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const mlsdevice_groupSelfUpdate: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_hasOutbound: (a: number, b: number, c: number) => number;
+export const mlsdevice_keyPackages: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_remoteSignatureKey: (a: number, b: number, c: number, d: number) => void;
+export const mlsdevice_restore: (a: number, b: number, c: number) => void;
+export const mlsdevice_signatureKey: (a: number, b: number) => void;
+export const mlsdevice_startOutbound: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const __wbindgen_export_0: (a: number) => void;
+export const __wbindgen_export_1: (a: number, b: number) => number;
+export const __wbindgen_export_2: (a: number, b: number, c: number, d: number) => number;
+export const __wbindgen_add_to_stack_pointer: (a: number) => number;
+export const __wbindgen_export_3: (a: number, b: number, c: number) => void;

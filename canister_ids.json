@@ -1,0 +1,23 @@
+{
+  "open-social-frontend": {
+    "ic": "ydmpv-niaaa-aaaak-qzlua-cai"
+  },
+  "open-social-identity": {
+    "ic": "bbyqw-cyaaa-aaaao-qqlna-cai"
+  },
+  "open-social-profiles": {
+    "ic": "bansl-ciaaa-aaaam-ajq7a-cai"
+  },
+  "open-social-app-orchestrator": {
+    "ic": "oy56c-4yaaa-aaaac-bgguq-cai"
+  },
+  "open-social-app-gateway": {
+    "ic": "ey3tv-myaaa-aaaae-ahhcq-cai"
+  },
+  "open-social-app-space": {
+    "ic": "464na-uaaaa-aaaao-qqoua-cai"
+  },
+  "open-social-app-search": {
+    "ic": "4z5lu-zyaaa-aaaao-qqouq-cai"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "canisters": {
+    "open-social-frontend": {
+      "type": "assets",
+      "source": [
+        "dist"
+      ],
+      "build": [
+        "npm run build"
+      ]
+    },
+    "open-social-identity": {
+      "type": "custom",
+      "candid": "backend/identity/open_social_identity.did",
+      "wasm": "backend/identity/target/wasm32-unknown-unknown/release/open_social_identity.wasm",
+      "build": "bash backend/identity/build.sh",
+      "init_arg": "(record { config = record { origins = vec { record { origin = \"https://ydmpv-niaaa-aaaak-qzlua-cai.icp0.io\"; rp_id = \"ydmpv-niaaa-aaaak-qzlua-cai.icp0.io\" }; record { origin = \"https://chat.opensocial.cc\"; rp_id = \"ydmpv-niaaa-aaaak-qzlua-cai.icp0.io\" }; record { origin = \"http://localhost:5173\"; rp_id = \"localhost\" } } } })",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    },
+    "open-social-profiles": {
+      "type": "custom",
+      "candid": "backend/profiles/open_social_profiles.did",
+      "wasm": "backend/profiles/target/wasm32-unknown-unknown/release/open_social_profiles.wasm",
+      "build": "bash backend/profiles/build.sh",
+      "init_arg": "(record { identity_canister = principal \"bbyqw-cyaaa-aaaao-qqlna-cai\" })",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    },
+    "open-social-app-orchestrator": {
+      "type": "custom",
+      "candid": "backend/orchestrator/open_social_orchestrator.did",
+      "wasm": "backend/orchestrator/target/wasm32-unknown-unknown/release/open_social_orchestrator.wasm",
+      "build": "bash backend/inbox/build.sh && bash backend/orchestrator/build.sh"
+    },
+    "open-social-app-gateway": {
+      "type": "custom",
+      "candid": "backend/gateway/open_social_gateway.did",
+      "wasm": "backend/gateway/target/wasm32-unknown-unknown/release/open_social_gateway.wasm",
+      "build": "bash backend/gateway/build.sh"
+    },
+    "open-social-app-space": {
+      "type": "custom",
+      "candid": "backend/space/open_social_space.did",
+      "wasm": "backend/space/target/wasm32-unknown-unknown/release/open_social_space.wasm",
+      "build": "bash backend/space/build.sh"
+    },
+    "open-social-app-search": {
+      "type": "custom",
+      "candid": "backend/search/open_social_search.did",
+      "wasm": "backend/search/target/wasm32-unknown-unknown/release/open_social_search.wasm",
+      "build": "bash backend/search/build.sh"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env.dfx",
+  "dfx": "0.32.0"
+}

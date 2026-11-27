@@ -1,0 +1,44 @@
+// Security headers for the ICP asset canister.
+// The CSP forbids third-party origins: no CDNs, no analytics, no remote fonts.
+// connect-src allows the ICP API boundary nodes used by Internet Identity sign-in.
+// Extend it explicitly when live Nym / Sia gateways are added.
+// COOP must allow popups: Internet Identity opens id.ai in a window and replies via postMessage.
+// Sia Storage: the SDK is WebAssembly ('wasm-unsafe-eval') and talks to storage hosts all over
+// the network with WebTransport/HTTPS, so connect-src allows any https: origin. Data sent there
+// is encrypted on the device first.
+[
+  {
+    "match": "**/*",
+    "security_policy": "standard",
+    // The custom CSP below is stricter than the standard policy.
+    "disable_security_policy_warning": true,
+    "headers": {
+      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      "Referrer-Policy": "no-referrer",
+      "Permissions-Policy": "camera=(self), microphone=(self), geolocation=(), interest-cohort=()",
+      "X-Content-Type-Options": "nosniff",
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
+    },
+    "allow_raw_access": false
+  },
+  {
+    // The custom domain, Internet Identity's alternative origins and passkeys'
+    // related origins (dotfiles are skipped unless listed).
+    "match": ".well-known",
+    "ignore": false
+  },
+  {
+    "match": ".well-known/ii-alternative-origins",
+    "headers": { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    "allow_raw_access": false
+  },
+  {
+    "match": ".well-known/webauthn",
+    "headers": { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    "allow_raw_access": false
+  },
+  {
+    "match": "assets/**/*",
+    "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+  }
+]

@@ -1,0 +1,23 @@
+[package]
+name = "open_social_space"
+version = "0.1.0"
+edition = "2021"
+description = "OpenSocial space canister: personal spaces (posts, links, works, videos, music, dapps) and market listings."
+license = "LicenseRef-Proprietary"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+candid = "0.10.39"
+ic-cdk = "0.20.3"
+ic-stable-structures = "0.7.2"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11.19"
+sha2 = "0.10"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
