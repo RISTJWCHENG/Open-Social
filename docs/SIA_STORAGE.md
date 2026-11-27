@@ -41,7 +41,7 @@ OpenSocial app id: `a40461cd…5b00a` = SHA-256("opensocial/sia-app-id/v1").
   in encrypted 4 MiB chunks and offered to every device of the friend (key
   and chunk count in an MLS message). Each receiving device fetches it over
   a direct link when one is open, asking from its first missing chunk, so a
-  dropped link resumes where it stopped; each chunk is checked (ZCF1: AES-256-
+  dropped link resumes where it stopped; each chunk is checked (OSF1: AES-256-
   GCM bound to its index and the last flag) and stored as it arrives, and the
   receiver confirms the whole file.
 - Optional, with the user's own Sia space connected: "Send via Sia now" for a

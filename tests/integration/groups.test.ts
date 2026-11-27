@@ -44,12 +44,12 @@ const notices = (m: RealMessaging, key: string) => m.messages(key).flatMap((x) =
 describe('group chats', () => {
   it('creates a group, and every member gets the messages of every other member', async () => {
     const { alice, bob, carol } = await setup();
-    const key = await alice.createGroup({ name: 'Trip to Ghent', members: [B, C] });
+    const key = await alice.createGroup({ name: 'Trip to Portland', members: [B, C] });
     const id = key.slice(2);
     await bob.poll();
     await carol.poll();
     for (const m of [bob, carol]) {
-      expect(m.group(id)!.state.name).toBe('Trip to Ghent');
+      expect(m.group(id)!.state.name).toBe('Trip to Portland');
       expect(m.group(id)!.state.members.map((x) => [x.account, x.role])).toEqual([
         [A, 'owner'],
         [B, 'member'],
@@ -59,7 +59,7 @@ describe('group chats', () => {
       expect(notices(m, key)).toEqual(['joined']);
     }
     // Added by a friend: joined at once. A group never makes its members contacts.
-    expect(bob.contact(key)).toMatchObject({ group: true, known: true, name: 'Trip to Ghent' });
+    expect(bob.contact(key)).toMatchObject({ group: true, known: true, name: 'Trip to Portland' });
     expect(bob.addressBook().map((c) => c.account)).toEqual([A]);
 
     await alice.send(key, 'Train at 9?');

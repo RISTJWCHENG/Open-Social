@@ -157,7 +157,7 @@ pub fn normalize_username(u: &str) -> String {
 }
 
 /// The uniqueness and lookup key: the normalized username in lower case, so
-/// "Rist", "rist" and "ＲＩＳＴ" are the same username.
+/// "Ada", "ada" and "ＡＤＡ" are the same username.
 pub fn username_key(u: &str) -> String {
     normalize_username(u).to_lowercase().nfkc().collect()
 }
@@ -280,11 +280,11 @@ mod tests {
 
     #[test]
     fn tokens_cover_prefixes_of_username_and_words() {
-        let t = search_tokens(Some("rist.cheng"), Some("Rist Cheng"));
-        for want in ["ri", "ris", "rist", "rist.cheng", "ch", "cheng"] {
+        let t = search_tokens(Some("ada.lovelace"), Some("Ada Lovelace"));
+        for want in ["ad", "ada", "ada.lovelace", "lo", "lovelace"] {
             assert!(t.contains(&want.to_string()), "{want}");
         }
-        assert!(t.contains(&"r".to_string()) && t.contains(&"c".to_string()), "single letters");
+        assert!(t.contains(&"a".to_string()) && t.contains(&"l".to_string()), "single letters");
     }
 
     #[test]
@@ -307,8 +307,8 @@ mod tests {
     #[test]
     fn usernames_in_any_language() {
         for ok in [
-            "rist_c.1",
-            "Rist.Cheng",
+            "ada_l.1",
+            "Ada.Lovelace",
             "张三",
             "王小明",
             "山田たろう",
@@ -338,11 +338,11 @@ mod tests {
         ] {
             assert!(username_problem(&normalize_username(bad)).is_some(), "{bad}");
         }
-        assert_eq!(username_key("Rist"), "rist");
-        assert_eq!(username_key("ＲＩＳＴ"), "rist");
-        assert_eq!(normalize_username(" ＲＩＳＴ "), "RIST");
-        let t = search_tokens(Some("Rist.Cheng"), Some("王小明 Müller"));
-        for want in ["rist", "cheng", "rist.cheng", "王", "王小明", "mü"] {
+        assert_eq!(username_key("Ada"), "ada");
+        assert_eq!(username_key("ＡＤＡ"), "ada");
+        assert_eq!(normalize_username(" ＡＤＡ "), "ADA");
+        let t = search_tokens(Some("Ada.Lovelace"), Some("王小明 Müller"));
+        for want in ["ada", "lovelace", "ada.lovelace", "王", "王小明", "mü"] {
             assert!(t.contains(&want.to_string()), "{want}");
         }
         let hindi = search_tokens(None, Some("नमस्ते दुनिया"));

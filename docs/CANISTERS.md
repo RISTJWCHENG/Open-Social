@@ -73,7 +73,7 @@ with `ids`, `space_items_by_ids`).
 - **Text:** lower-cased words; Chinese, Japanese and Korean text is indexed
   as overlapping two-character pairs, so "自行车" finds "二手自行车". Title
   words weigh 3, tags 2, body 1. The last word of a query also matches as a
-  prefix ("brus" finds "Brussels"), so results appear while typing.
+  prefix ("port" finds "Portland"), so results appear while typing.
 - **Ranking:** every query word must match (AND); hits are ordered by the
   sum of weight x idf, then by recency.
 - **Memories:** 0 config, 1 documents, 2 postings (`term \0 kind \0 id` ->

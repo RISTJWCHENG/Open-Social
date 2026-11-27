@@ -49,7 +49,7 @@ export function NewGroupDialog(p: {
           <input
             value={name}
             maxLength={GROUP_LIMITS.name}
-            placeholder="e.g. Weekend in Ghent"
+            placeholder="e.g. Weekend in Portland"
             autoFocus
             onChange={(e) => setName(e.target.value)}
           />

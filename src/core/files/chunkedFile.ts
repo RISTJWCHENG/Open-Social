@@ -1,9 +1,9 @@
 /**
- * Streaming file encryption for large attachments ("ZCF1").
+ * Streaming file encryption for large attachments ("OSF1").
  *
  * The plaintext is split into chunks (4 MiB); each is sealed with AES-256-GCM
  * under the file key. Chunk i uses the nonce base(8 bytes) || i (u32, big
- * endian) and the additional data "ZCF1" || i || last-flag, so chunks can't be
+ * endian) and the additional data "OSF1" || i || last-flag, so chunks can't be
  * reordered, dropped, duplicated or cut off without the decryption failing.
  * Only a few chunks are in memory at a time, whatever the file size.
  */
@@ -11,7 +11,7 @@
 export const FILE_CHUNK_BYTES = 4 * 1024 * 1024;
 export const MAX_FILE_BYTES = 2 * 1024 * 1024 * 1024;
 const TAG = 16;
-const MAGIC = new TextEncoder().encode('ZCF1');
+const MAGIC = new TextEncoder().encode('OSF1');
 
 /** A file to send: read in ranges, never all at once. */
 export interface FileSource {
@@ -81,7 +81,7 @@ export function encryptStream(
 }
 
 /**
- * Decrypts a ZCF1 stream of a file of `size` plaintext bytes. Fails on any
+ * Decrypts an OSF1 stream of a file of `size` plaintext bytes. Fails on any
  * tampering, on truncation and on trailing data.
  */
 export function decryptStream(

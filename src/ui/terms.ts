@@ -101,7 +101,7 @@ export const TERMS: TermsSection[] = [
   {
     title: 'General',
     clauses: [
-      'These terms are governed by the laws of [Belgium]. Disputes go to the courts of [Brussels], unless the law of the country where you live as a consumer gives you the right to use your local courts.',
+      'These terms are governed by the laws of [country]. Disputes go to the courts of [city], unless the law of the country where you live as a consumer gives you the right to use your local courts.',
       'If any part of these terms is found to be unenforceable, the rest remains in effect. If we do not enforce a right straight away, we do not give it up.',
       'Questions about these terms: [contact email].',
     ],

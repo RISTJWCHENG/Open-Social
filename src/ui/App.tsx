@@ -157,7 +157,7 @@ const WEBSITE_URL = 'https://opensocial.cc/';
 
 type Filter = 'all' | 'unread' | 'groups' | 'favorites';
 
-/** Marks the notes-to-self chat in the chat list: "Rist Cheng (Myself)". */
+/** Marks the notes-to-self chat in the chat list: "Ada Lovelace (Myself)". */
 const SELF_MARK = 'Myself';
 
 /**

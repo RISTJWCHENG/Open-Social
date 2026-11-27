@@ -16,8 +16,8 @@ with sync_playwright() as pw:
     contact_w=pg.locator("aside.profile-panel").bounding_box()["width"]
     pg.click("[aria-label='Menu']"); pg.click(".menu-settings")
     pg.set_input_files("input[aria-label='Profile photo']", "/tmp/a.png"); pg.click(".crop-apply"); pg.wait_for_timeout(400)
-    pg.fill("#set-profile input.pf-input", "Rist Cheng"); pg.fill("textarea.pf-textarea", "VFX artist in Brussels")
-    pg.click("text=+ Add link"); pg.fill("[aria-label='Link 1 name']", "Mirror Vision"); pg.fill("[aria-label='Link 1 address']", "https://mirrorvision.example")
+    pg.fill("#set-profile input.pf-input", "Ada Lovelace"); pg.fill("textarea.pf-textarea", "Illustrator in Portland")
+    pg.click("text=+ Add link"); pg.fill("[aria-label='Link 1 name']", "Portfolio"); pg.fill("[aria-label='Link 1 address']", "https://example.com")
     pg.click("button:has-text('Save profile')"); pg.wait_for_selector("text=Profile saved", timeout=60000); pg.click("[aria-label='Close settings']")
     pg.click("[aria-label='Menu']"); pg.click("[role=menuitem]:has-text('My Profile')")
     panel=pg.locator("aside.profile-panel"); panel.wait_for()

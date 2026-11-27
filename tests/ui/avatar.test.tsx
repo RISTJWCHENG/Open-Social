@@ -5,7 +5,7 @@ import { Avatar, avatarGradient, initial } from '../../src/ui/Avatar';
 
 describe('Avatar', () => {
   it('uses one letter of the name, in any script', () => {
-    expect(initial('rist cheng')).toBe('R');
+    expect(initial('ada lovelace')).toBe('A');
     expect(initial('王小明')).toBe('王');
     expect(initial('@alice')).toBe('A');
     expect(initial('  ')).toBe('?');

@@ -10,7 +10,7 @@ Status: agreed direction. Rows marked "open" still need a decision.
 | Local database | IndexedDB, encrypted at rest | Fast display and search | To do |
 | Real-time transport | Hyperswarm/HyperDHT (apps), relay for the web; WebRTC considered | Direct delivery when online | Open |
 | Group distribution | Autobase multi-writer logs, relays | Large rooms | Open |
-| Sync | Hypercore-style signed append-only logs (ZLE1 entries: seq, prev hash, device signature) | Incremental sync, de-duplication, gap and replay detection | Live (1:1) |
+| Sync | Hypercore-style signed append-only logs (OLE1 entries: seq, prev hash, device signature) | Incremental sync, de-duplication, gap and replay detection | Live (1:1) |
 | Offline delivery | ICP mailbox (in the identity canister) now, home-shard inboxes next (`docs/INBOX_SHARDING.md`); blind peers later behind the same `OfflineDelivery` interface | Hold ciphertext while users are offline | Live (ICP mailbox) |
 | Profiles | open-social-profiles canister | Sealed friends-only profile, optional public profile | Live |
 | Long-term storage | Sia, each user's own space | Encrypted backups, large attachments | Live |
@@ -42,9 +42,9 @@ Status: agreed direction. Rows marked "open" still need a decision.
   query), `ack_mail` (deletes delivered entries). Entries nobody fetches are
   deleted after 30 days. The canister stores ciphertext only, directly in
   stable memory (ic-stable-structures), so upgrades never copy it.
-- Entries are ZLE1 log entries: per recipient device chain with sequence
+- Entries are OLE1 log entries: per recipient device chain with sequence
   number, previous-entry hash and the sender device's ECDSA signature,
-  wrapping a ZCE1 envelope sealed for that device.
+  wrapping an OSE1 envelope sealed for that device.
 - Receivers check: transport sender = claimed sender, entry signature against
   the published device key, conversation id, envelope signer = that device,
   chain order (duplicates dropped, gaps flagged).
@@ -141,7 +141,7 @@ localStorage only holds non-sensitive preferences.
   authenticated end to end. STUN: Google and Cloudflare public servers. No
   TURN relay yet: when a direct path is impossible, messages keep using the
   mailbox.
-- Same ZLE1/MLS entries over the link. The receiver reports the last
+- Same OLE1/MLS entries over the link. The receiver reports the last
   sequence number it processed ("hello" on open, "ack" after every entry,
   from either path). Entry n goes over the link only if n-1 was already sent
   there or acknowledged, so processing stays in order; unacknowledged

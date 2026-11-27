@@ -8,8 +8,8 @@ import {
 describe("usernames", () => {
   it("accepts letters of any language, any case", () => {
     for (const ok of [
-      "rist_c.1",
-      "Rist.Cheng",
+      "ada_l.1",
+      "Ada.Lovelace",
       "张三",
       "王小明",
       "山田たろう",
@@ -45,8 +45,8 @@ describe("usernames", () => {
   });
 
   it("treats case and full-width forms as the same username", () => {
-    expect(usernameKey("Rist")).toBe("rist");
-    expect(usernameKey("ＲＩＳＴ")).toBe("rist");
-    expect(normalizeUsername(" ＲＩＳＴ ")).toBe("RIST");
+    expect(usernameKey("Ada")).toBe("ada");
+    expect(usernameKey("ＡＤＡ")).toBe("ada");
+    expect(normalizeUsername(" ＡＤＡ ")).toBe("ADA");
   });
 });

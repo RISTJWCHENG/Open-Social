@@ -27,7 +27,7 @@ async function seal(plain: Uint8Array) {
 const open = (ct: Uint8Array, key: CryptoKey, base: Uint8Array, size: number) =>
   readAll(decryptStream(streamOf(ct), key, base, size, CH));
 
-describe('ZCF1 streaming file encryption', () => {
+describe('OSF1 streaming file encryption', () => {
   it('round-trips at every size around chunk boundaries', async () => {
     for (const n of [0, 1, CH - 1, CH, CH + 1, 3 * CH + 5]) {
       const plain = data(n);

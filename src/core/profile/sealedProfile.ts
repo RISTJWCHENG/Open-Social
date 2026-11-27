@@ -17,7 +17,7 @@ export interface ProfileContent {
   avatar: string;
   /** Data URL of the cover image shown at the top of the profile panel, or ''. */
   cover: string;
-  /** Where the person is (free text, e.g. "Brussels, Belgium"), or ''. Friends only. */
+  /** Where the person is (free text, e.g. "Portland, Oregon"), or ''. Friends only. */
   location: string;
   /** Birth date as YYYY-MM-DD, or ''. Friends only. */
   birthDate: string;

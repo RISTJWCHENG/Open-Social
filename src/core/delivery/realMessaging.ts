@@ -2,7 +2,7 @@
  * Real one-to-one messaging between OpenSocial accounts.
  *
  * Send: for each of the recipient's devices, seal the text for that device
- * (ZCE1 envelope), wrap it in a signed log entry (ZLE1, per-device chain)
+ * (OSE1 envelope), wrap it in a signed log entry (OLE1, per-device chain)
  * and deposit it through OfflineDelivery.
  * Receive: fetch entries for this device, check the transport-reported
  * sender, the entry signature against the sender's published device key,
@@ -13,7 +13,7 @@
  * each side owns one outbound two-member group (it alone commits there), set
  * up from the other device's key package; the Welcome goes through the
  * mailbox first. Forward secrecy from MLS; the sender heals its leaf with
- * periodic self-update commits. Log entries (ZLE1 v3) are still signed by the
+ * periodic self-update commits. Log entries (OLE1 v3) are still signed by the
  * device key from the directory, which binds MLS traffic to the account.
  */
 import { createIdentity } from '../crypto/identity';
@@ -355,7 +355,7 @@ const BATCH_MAX_ENTRIES = 45;
 const BATCH_MAX_BYTES = 480 * 1024;
 
 /**
- * Uploads an encrypted stream (ZCF1) to the user's Sia space and shares it.
+ * Uploads an encrypted stream (OSF1) to the user's Sia space and shares it.
  * `ciphertext` returns a fresh stream of the same bytes each time it is called,
  * so the upload can be retried.
  */
@@ -403,7 +403,7 @@ export interface Attachment {
   thumb?: string;
   /** Voice message: length and waveform. */
   voice?: VoiceInfo;
-  /** Large files: where the ZCF1 stream is and its key (iv = 8-byte nonce base). */
+  /** Large files: where the OSF1 stream is and its key (iv = 8-byte nonce base). */
   sia?: { seed: string; objectId: string; key: string; iv: string };
   /** Incoming inline file: the chunk indexes received so far. */
   have?: number[];
@@ -1852,7 +1852,7 @@ export class RealMessaging {
   /**
    * Sends a file of up to MAX_FILE_BYTES. Up to INLINE_MAX_BYTES it travels in
    * encrypted chunks (direct link or mailbox) and is kept on this device.
-   * Larger files are encrypted as a stream (ZCF1, fresh key), uploaded to the
+   * Larger files are encrypted as a stream (OSF1, fresh key), uploaded to the
    * sender's Sia space while being read, and shared by a sharing key; nothing
    * large is held in memory or copied into the device store.
    */

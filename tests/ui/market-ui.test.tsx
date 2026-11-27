@@ -20,7 +20,7 @@ const listing = (over: Partial<Listing> = {}): Listing => ({
   price: 45_000,
   currency: 'EUR',
   negotiable: true,
-  location: 'Brussels',
+  location: 'Portland',
   shipping: false,
   pickup: true,
   photos: [{ hash: 'h1', mime: 'image/webp', size: 10 }],
@@ -114,7 +114,7 @@ describe('Market views', () => {
   it('the editor asks for the missing fields and keeps existing photos', async () => {
     const onSave = vi.fn(async () => undefined);
     const { unmount } = render(
-      <ListingEditor sellerName="Alice" location="Brussels" photo={photo} onSave={onSave} onCancel={() => undefined} />,
+      <ListingEditor sellerName="Alice" location="Portland" photo={photo} onSave={onSave} onCancel={() => undefined} />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Publish listing' }));
     expect(await screen.findByText('Add at least one photo.')).toBeInTheDocument();

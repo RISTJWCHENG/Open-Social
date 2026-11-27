@@ -78,10 +78,10 @@ join(topic) / leave(topic) / peersOn(topic)   // PeerSwarm only
 
 ## Data formats
 
-### Sealed envelope (ZCE1)
+### Sealed envelope (OSE1)
 
 ```
-"ZCE1" (4) | ephemeral P-256 public key (65) | HKDF salt (32) | AES-GCM IV (12) | ciphertext+tag
+"OSE1" (4) | ephemeral P-256 public key (65) | HKDF salt (32) | AES-GCM IV (12) | ciphertext+tag
 ```
 
 - Key agreement: ephemeral-static ECDH P-256.
@@ -94,10 +94,10 @@ join(topic) / leave(topic) / peersOn(topic)   // PeerSwarm only
 This is a composition of standard primitives. It is a placeholder until an
 audited messaging protocol library is adopted (see ROADMAP).
 
-### Transport frame (ZCF1)
+### Transport frame (OSF1)
 
 ```
-"ZCF1" (4) | type (1, 0x01 = message) | sealed envelope
+"OSF1" (4) | type (1, 0x01 = message) | sealed envelope
 ```
 
 ## Runtime constraints to resolve in Phase 2

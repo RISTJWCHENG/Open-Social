@@ -1,5 +1,5 @@
 /**
- * Message log entries (ZLE1), Hypercore-style: each sender keeps a signed,
+ * Message log entries (OLE1), Hypercore-style: each sender keeps a signed,
  * append-only log per conversation. An entry carries the sender's sequence
  * number and the hash of the sender's previous entry, so receivers can detect
  * gaps, replays and reordering, whichever transport delivered it (ICP mailbox

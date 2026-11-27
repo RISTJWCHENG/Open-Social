@@ -17,7 +17,7 @@ with sync_playwright() as pw:
     pg.click("[aria-label='Menu']"); pg.click(".menu-settings")
     pg.set_input_files("input[aria-label='Cover image']", "/tmp/cover.jpg")
     pg.set_input_files("input[aria-label='Profile photo']", "/tmp/a.png"); pg.click(".crop-apply"); pg.wait_for_timeout(800)
-    pg.fill("#set-profile input.pf-input", "Rist Cheng")
+    pg.fill("#set-profile input.pf-input", "Ada Lovelace")
     ed_cover=box(pg, ".pf-cover"); ed_av=box(pg, ".pf-cover .profile-avatar")
     pg.locator("aside.settings-panel").screenshot(path="/tmp/cover-editor.png")
     pg.click("button:has-text('Save profile')"); pg.wait_for_selector("text=Profile saved", timeout=60000)

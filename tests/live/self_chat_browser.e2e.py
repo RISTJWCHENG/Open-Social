@@ -14,7 +14,7 @@ with sync_playwright() as pw:
     pg.wait_for_selector("button.rail-me:not([disabled])", timeout=60000)
     pg.click("[aria-label='Menu']"); pg.click(".menu-settings")
     pg.set_input_files("input[aria-label='Profile photo']", "/tmp/a.png"); pg.click(".crop-apply"); pg.wait_for_timeout(400)
-    pg.fill("input.pf-input[placeholder]", "Rist Cheng"); pg.click("button:has-text('Save profile')"); pg.wait_for_selector("text=Profile saved", timeout=60000)
+    pg.fill("input.pf-input[placeholder]", "Ada Lovelace"); pg.click("button:has-text('Save profile')"); pg.wait_for_selector("text=Profile saved", timeout=60000)
     pg.click("[aria-label='Close settings']")
     pg.click("button.rail-me"); pg.wait_for_selector("main[aria-label^='Conversation with']:has(.chat-header .avatar)", timeout=20000); print("rail avatar opens the notes-to-self chat")
     pg.fill("#draft", "Remember: call the plumber"); pg.click("[aria-label='Send encrypted']")

@@ -19,10 +19,10 @@ describe('Profile settings', () => {
     const name = screen.getByLabelText('Link 1 name');
     expect(screen.queryByText('Add a name for this link.')).toBeNull(); // a fresh row is not an error yet
     await userEvent.clear(address);
-    await userEvent.type(address, 'https://instagram.com/rist');
+    await userEvent.type(address, 'https://instagram.com/example');
     expect(name).toHaveValue('Instagram');
     await userEvent.clear(address);
-    await userEvent.type(address, 'https://t.me/rist');
+    await userEvent.type(address, 'https://t.me/example');
     expect(name).toHaveValue('Telegram');
     await userEvent.clear(address);
     await userEvent.type(address, 'https://example.com');
@@ -30,7 +30,7 @@ describe('Profile settings', () => {
     expect(screen.getByText('Add a name for this link.')).toBeInTheDocument();
     await userEvent.type(name, 'My site');
     await userEvent.clear(address);
-    await userEvent.type(address, 'https://t.me/rist');
+    await userEvent.type(address, 'https://t.me/example');
     expect(name).toHaveValue('My site');
   });
 
@@ -38,29 +38,29 @@ describe('Profile settings', () => {
     const onSave = vi.fn().mockResolvedValue(undefined);
     page(onSave);
     expect(screen.getByPlaceholderText('ibfma…rae')).toBeInTheDocument(); // display name is optional
-    await userEvent.type(screen.getByPlaceholderText('ibfma…rae'), 'Rist Cheng');
-    await userEvent.type(screen.getByLabelText('Username'), 'Rist C');
-    expect(screen.getByLabelText('Username')).toHaveValue('RistC');
+    await userEvent.type(screen.getByPlaceholderText('ibfma…rae'), 'Ada Lovelace');
+    await userEvent.type(screen.getByLabelText('Username'), 'Ada L');
+    expect(screen.getByLabelText('Username')).toHaveValue('AdaL');
     await userEvent.type(screen.getByPlaceholderText('A short line about you'), 'Hello');
     expect(screen.getByText('5/160')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: '+ Add link' }));
     await userEvent.type(screen.getByLabelText('Link 1 name'), 'Studio');
     expect(screen.getByLabelText('Link 1 address')).toHaveValue('https://'); // starts with the scheme
     await userEvent.clear(screen.getByLabelText('Link 1 address'));
-    await userEvent.type(screen.getByLabelText('Link 1 address'), 'mirrorvision.example');
+    await userEvent.type(screen.getByLabelText('Link 1 address'), 'studio.example');
     expect(screen.getByText('Use a full https:// address.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save profile' })).toBeDisabled();
     await userEvent.clear(screen.getByLabelText('Link 1 address'));
-    await userEvent.type(screen.getByLabelText('Link 1 address'), 'https://mirrorvision.example');
+    await userEvent.type(screen.getByLabelText('Link 1 address'), 'https://studio.example');
     await userEvent.click(screen.getByRole('button', { name: 'Save profile' }));
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
     expect(onSave.mock.calls[0]![0]).toMatchObject({
       visibility: 'friends',
       profile: {
-        displayName: 'Rist Cheng',
-        username: 'RistC',
+        displayName: 'Ada Lovelace',
+        username: 'AdaL',
         bio: 'Hello',
-        links: [{ label: 'Studio', url: 'https://mirrorvision.example' }],
+        links: [{ label: 'Studio', url: 'https://studio.example' }],
       },
     });
     expect(await screen.findByRole('status')).toHaveTextContent('Profile saved');
@@ -98,13 +98,13 @@ describe('Profile settings', () => {
     const props = { ready: true, fallbackName: 'x', onSave };
     const { rerender } = render(<ProfileCard value={null} {...props} />);
     await userEvent.type(screen.getByLabelText(/bio/i), 'hello');
-    const loaded = { ...emptyProfile(), displayName: 'Rist', username: 'rist', bio: 'old' };
+    const loaded = { ...emptyProfile(), displayName: 'Ada', username: 'ada', bio: 'old' };
     rerender(<ProfileCard value={{ profile: loaded, visibility: 'public' }} {...props} />);
-    expect(screen.getByLabelText(/display name/i)).toHaveValue('Rist');
+    expect(screen.getByLabelText(/display name/i)).toHaveValue('Ada');
     expect(screen.getByLabelText(/bio/i)).toHaveValue('hello');
     await userEvent.click(screen.getByRole('button', { name: 'Save profile' }));
     await waitFor(() => expect(onSave).toHaveBeenCalled());
-    expect(onSave.mock.calls[0]![0].profile).toMatchObject({ displayName: 'Rist', username: 'rist', bio: 'hello' });
+    expect(onSave.mock.calls[0]![0].profile).toMatchObject({ displayName: 'Ada', username: 'ada', bio: 'hello' });
   });
 
   it('allows up to 10 links, then hides + Add link', async () => {
@@ -140,9 +140,9 @@ describe('Profile settings', () => {
 
   it('seals profiles so only the key holder can read them', async () => {
     const key = newProfileKey();
-    const p = { displayName: 'Rist', username: 'rist', bio: 'hi', location: 'Brussels, Belgium', birthDate: '1990-03-04', avatar: '', cover: 'data:image/webp;base64,UklGRg==', links: [{ label: 'Site', url: 'https://example.com/me' }], status: 'busy' as const, updatedAt: 3 };
+    const p = { displayName: 'Ada', username: 'ada', bio: 'hi', location: 'Portland, Oregon', birthDate: '2000-01-15', avatar: '', cover: 'data:image/webp;base64,UklGRg==', links: [{ label: 'Site', url: 'https://example.com/me' }], status: 'busy' as const, updatedAt: 3 };
     const blob = await sealProfile(p, key);
-    expect(new TextDecoder().decode(blob)).not.toContain('Rist');
+    expect(new TextDecoder().decode(blob)).not.toContain('Portland');
     expect(await openProfile(blob, key)).toEqual(p);
     await expect(openProfile(blob, newProfileKey())).rejects.toThrow();
   });
@@ -215,7 +215,7 @@ describe('Large video attachments', () => {
   it('while the profile is coming from another device, offers to save it here as a new profile', async () => {
     const onSave = vi.fn().mockResolvedValue(undefined);
     const onStartNew = vi.fn();
-    const value = { profile: { ...emptyProfile(), displayName: 'Rist', username: 'rist' }, visibility: 'public' as const };
+    const value = { profile: { ...emptyProfile(), displayName: 'Ada', username: 'ada' }, visibility: 'public' as const };
     render(<ProfileCard value={value} ready fallbackName="ibfma…rae" onSave={onSave} restoring onStartNew={onStartNew} />);
     await userEvent.type(screen.getByLabelText(/bio/i), 'hello');
     expect(screen.getByRole('button', { name: 'Save profile' })).toBeDisabled();

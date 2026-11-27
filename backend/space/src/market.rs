@@ -693,7 +693,7 @@ mod tests {
             price: 45_000,
             currency: "EUR".into(),
             negotiable: true,
-            location: "Brussels".into(),
+            location: "Portland".into(),
             shipping: false,
             pickup: true,
             photos: vec![PhotoInput::Keep("x".into())],
@@ -713,7 +713,7 @@ mod tests {
             price,
             currency: "EUR".into(),
             negotiable: false,
-            location: "Brussels, Ixelles".into(),
+            location: "Portland, Downtown".into(),
             shipping: id % 3 == 0,
             pickup: true,
             photos: vec![],
@@ -775,7 +775,7 @@ mod tests {
         let q = MarketQuery { free_only: true, limit: 10, ..query() };
         assert_eq!(search(all.clone().into_iter(), &q).total, 1);
 
-        let q = MarketQuery { text: "ITEM 5".into(), location: "ixelles".into(), limit: 10, ..query() };
+        let q = MarketQuery { text: "ITEM 5".into(), location: "downtown".into(), limit: 10, ..query() };
         assert_eq!(search(all.into_iter(), &q).items[0].id, 5);
     }
 }

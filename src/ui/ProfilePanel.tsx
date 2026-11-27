@@ -10,7 +10,7 @@ import { LevelBadge } from './LevelBadge';
 import { ShareContactCard } from './ShareContactCard';
 import { InfoTip } from './InfoTip';
 
-/** "March 4, 1990" from 1990-03-04 (the date as written, whatever the time zone). */
+/** "January 15, 2000" from 2000-01-15 (the date as written, whatever the time zone). */
 export function birthDateText(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
   return new Date(Date.UTC(y!, m! - 1, d!)).toLocaleDateString('en-US', {

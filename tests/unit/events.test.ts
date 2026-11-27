@@ -71,7 +71,7 @@ describe('events', () => {
   });
 
   it('exports iCalendar with escaped text and no local settings on the wire', () => {
-    const e = ev({ description: 'Bring snacks, drinks; and friends\nSee you', location: 'Rue Royale 1, Brussels' });
+    const e = ev({ description: 'Bring snacks, drinks; and friends\nSee you', location: '100 Main Street, Portland' });
     const raw = toIcs(e, Date.UTC(2026, 10, 26));
     expect(raw.split('\r\n').every((l) => new TextEncoder().encode(l).length <= 75)).toBe(true);
     const ics = raw.replace(/\r\n /g, '');

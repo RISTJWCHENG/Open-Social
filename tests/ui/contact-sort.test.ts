@@ -31,10 +31,10 @@ describe('Contact sorting', () => {
   });
 
   it('searches names, @usernames, locations and IDs', () => {
-    const x = c('Rist', 1, { profile: { username: 'rist', location: 'Brussels, Belgium' } as RealContact['profile'] });
-    expect(contactMatches(x, '@ris')).toBe(true);
-    expect(contactMatches(x, 'brussels')).toBe(true);
-    expect(contactMatches(x, 'acc-r')).toBe(true);
+    const x = c('Ada', 1, { profile: { username: 'ada', location: 'Portland, Oregon' } as RealContact['profile'] });
+    expect(contactMatches(x, '@ad')).toBe(true);
+    expect(contactMatches(x, 'portland')).toBe(true);
+    expect(contactMatches(x, 'acc-a')).toBe(true);
     expect(contactMatches(x, 'paris')).toBe(false);
   });
 });

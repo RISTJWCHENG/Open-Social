@@ -506,22 +506,22 @@ mod tests {
 
     #[test]
     fn finds_ranks_updates_and_removes() {
-        put_doc(doc("listing", "1", "Vintage road bike", "Steel frame, Brussels", 1)).unwrap();
+        put_doc(doc("listing", "1", "Vintage road bike", "Steel frame, Portland", 1)).unwrap();
         put_doc(doc("listing", "2", "Bike lights", "Front and back", 2)).unwrap();
-        put_doc(doc("space", "9", "My bike trip", "Road to Ghent", 3)).unwrap();
-        put_doc(doc("listing", "3", "二手自行车出售", "在布鲁塞尔", 4)).unwrap();
+        put_doc(doc("space", "9", "My bike trip", "Road to Denver", 3)).unwrap();
+        put_doc(doc("listing", "3", "二手自行车出售", "在波特兰", 4)).unwrap();
 
         assert_eq!(q("bike", &["listing"]), vec!["2".to_string(), "1".to_string()], "same weight: newest first");
         assert_eq!(q("road bike", &[]).len(), 2, "all terms must match");
         assert_eq!(q("road bi", &["listing"]), vec!["1".to_string()], "the last word is a prefix while typed");
         assert!(q("road bi ", &["listing"]).is_empty(), "a finished word must match whole");
         assert_eq!(q("自行车", &[]), vec!["3".to_string()]);
-        assert_eq!(q("布鲁塞尔", &[]), vec!["3".to_string()]);
-        assert!(q("自行车 ghent", &[]).is_empty());
+        assert_eq!(q("波特兰", &[]), vec!["3".to_string()]);
+        assert!(q("自行车 denver", &[]).is_empty());
 
-        put_doc(doc("listing", "1", "Vintage road bike", "Sold to a friend in Antwerp", 5)).unwrap();
-        assert!(q("brussels", &[]).is_empty(), "old terms are gone after an update");
-        assert_eq!(q("antwerp", &[]), vec!["1".to_string()]);
+        put_doc(doc("listing", "1", "Vintage road bike", "Sold to a friend in Salem", 5)).unwrap();
+        assert!(q("portland", &[]).is_empty(), "old terms are gone after an update");
+        assert_eq!(q("salem", &[]), vec!["1".to_string()]);
 
         remove_doc("listing", "1");
         assert!(q("vintage", &[]).is_empty());

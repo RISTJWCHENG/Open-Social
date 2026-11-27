@@ -531,10 +531,10 @@ describe('RealMessaging over an offline mailbox', () => {
     it('events: invite, reply, update and cancel reach everyone invited; only the organizer can change them', async () => {
       const { alice, bob } = await friends();
       const start = Date.now() + 86_400_000;
-      const id = await alice.createEvent({ title: 'Launch party', start, location: 'Brussels', invitees: ['bob'] });
+      const id = await alice.createEvent({ title: 'Launch party', start, location: 'Portland', invitees: ['bob'] });
       expect(alice.messages('bob').at(-1)).toMatchObject({ eventId: id, status: 'sent' });
       await bob.poll();
-      expect(bob.event(id)).toMatchObject({ title: 'Launch party', organizer: 'alice', location: 'Brussels' });
+      expect(bob.event(id)).toMatchObject({ title: 'Launch party', organizer: 'alice', location: 'Portland' });
       expect(bob.messages('alice').at(-1)!.eventId).toBe(id);
       // Bob answers; Alice records it and shares it with everyone invited.
       await bob.respondEvent(id, 'going');

@@ -21,7 +21,7 @@
 
 ## Phase 3 - Protocol hardening (proposed)
 
-- Replace the ZCE1 envelope with an audited protocol implementation that
+- Replace the OSE1 envelope with an audited protocol implementation that
   provides forward secrecy and post-compromise security (for example a
   Double Ratchet or MLS library), selected after review.
 - Encrypted local key persistence.

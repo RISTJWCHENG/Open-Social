@@ -19,7 +19,7 @@ const draft: ListingDraft = {
   free: false,
   currency: 'EUR',
   negotiable: false,
-  location: 'Brussels',
+  location: 'Portland',
   shipping: false,
   pickup: true,
   photoCount: 1,

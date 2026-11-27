@@ -68,7 +68,7 @@ created_at_ns, updated_at_ns: nat64
 - Stored as typed after NFKC normalization (full-width and other compatibility
   forms become ordinary characters), so the case the user chose is shown.
 - Unique case-insensitively: `USERNAMES` is keyed by `username_key`, the
-  lower-cased NFKC form, so `Rist`, `rist` and `ＲＩＳＴ` are one username.
+  lower-cased NFKC form, so `Ada`, `ada` and `ＡＤＡ` are one username.
 - One writing system per username (Unicode Script property; Common and
   Inherited characters such as digits, `.`, `_` and marks are neutral). Latin
   may be combined with Han and Hiragana/Katakana, Hangul or Bopomofo. This stops

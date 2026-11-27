@@ -3,7 +3,7 @@
  * which has the final say.
  *
  * - Letters and digits of any language, plus dots and underscores; 2–20 characters.
- * - Case is kept as typed, but "Rist", "rist" and "ＲＩＳＴ" are the same username.
+ * - Case is kept as typed, but "Ada", "ada" and "ＡＤＡ" are the same username.
  * - One writing system per username (Latin may be combined with Chinese, Japanese
  *   or Korean), so look-alike letters from different alphabets cannot be mixed to
  *   imitate someone else's name.

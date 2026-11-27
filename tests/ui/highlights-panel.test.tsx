@@ -9,7 +9,7 @@ const msg = (id: string, sentAt: number, over: Partial<RealMessage>): RealMessag
   ({ id, direction: 'in', body: '', sentAt, status: 'delivered', verified: true, highlightedAt: 1, ...over }) as RealMessage;
 
 const props = (messages: RealMessage[]) => ({
-  me: { name: 'Rist', avatar: 'data:image/webp;base64,TUU=' },
+  me: { name: 'Ada', avatar: 'data:image/webp;base64,TUU=' },
   them: { name: 'Unbreakable', avatar: 'data:image/webp;base64,VEhFTQ==' },
   messages,
   renderAttachment: (m: RealMessage) => (m.attachment ? <div data-testid="attachment">{m.attachment.name}</div> : null),
@@ -36,7 +36,7 @@ describe('Highlighted messages panel', () => {
     expect(items[1]!.querySelector('.highlights-meta img.highlights-avatar')).toHaveAttribute('src', 'data:image/webp;base64,TUU=');
     expect(items[1]!.querySelector('.message')).toHaveClass('out');
     expect(within(items[1]!).getByTestId('attachment')).toBeInTheDocument(); // the chat's own attachment view
-    expect(items[1]).toHaveTextContent('Rist');
+    expect(items[1]).toHaveTextContent('Ada');
     expect(items[0]).toHaveTextContent('Unbreakable');
     await userEvent.click(within(items[2]!).getByRole('button', { name: 'Show in chat' }));
     expect(p.onJump).toHaveBeenCalledWith('c');

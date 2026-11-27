@@ -47,11 +47,11 @@ describe('SignUpPage', () => {
     await userEvent.type(name, '王小明');
     expect(await screen.findByText('Available.')).toBeInTheDocument();
     await userEvent.clear(name);
-    await userEvent.type(name, 'Rist.Cheng');
+    await userEvent.type(name, 'Ada.Lovelace');
     expect(await screen.findByText('Available.')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('checkbox', { name: /I agree/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }));
-    expect(onSubmit).toHaveBeenCalledWith({ username: 'Rist.Cheng', displayName: 'Rist.Cheng', email: '', inviter: null });
+    expect(onSubmit).toHaveBeenCalledWith({ username: 'Ada.Lovelace', displayName: 'Ada.Lovelace', email: '', inviter: null });
   });
 
   it('submits the username, display name and the chosen inviter', async () => {

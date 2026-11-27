@@ -14,7 +14,7 @@ const ev = (over: Partial<ZEvent> = {}): ZEvent => ({
   organizer: 'alice',
   title: 'Launch party',
   start: tomorrow,
-  location: 'Brussels',
+  location: 'Portland',
   invitees: [ME, 'bob'],
   responses: { bob: 'going' },
   updatedAt: 1,

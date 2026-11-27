@@ -47,8 +47,8 @@ src/
     types.ts              Shared types, ModuleDescriptor, OpenSocialError
     interfaces.ts         Interfaces for all five integration layers
     registry.ts           Module descriptor registry
-    crypto/               Identity keys and sealed envelope (ZCE1)
-    messaging/            Transport frames (ZCF1) and Messenger orchestration
+    crypto/               Identity keys and sealed envelope (OSE1)
+    messaging/            Transport frames (OSF1) and Messenger orchestration
     transport/            In-process bus used only by mock transports
   modules/
     icp-hosting/          Hosting detection (implemented)
@@ -69,9 +69,6 @@ dfx.json                  ICP canister definition
 
 The app is published at https://chat.opensocial.cc (and its canister address
 https://ydmpv-niaaa-aaaak-qzlua-cai.icp0.io; accounts are the same on both).
-The OpenSocial Official Website, https://opensocial.cc (canister
-`z3efs-jaaaa-aaaam-qjtlq-cai`), lives in its own repository,
-`RISTJWCHENG/zcontact-official-website`.
 
 ## Honesty rules enforced in code
 
